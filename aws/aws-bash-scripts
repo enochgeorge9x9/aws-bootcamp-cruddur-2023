@@ -6,7 +6,7 @@ aws budgets create-budget \
 
 aws sns create-topic --name billing-alarm 
 aws sns subscribe \
-    --topic-arn ***REMOVED*** \
+    --topic-arn <topicARN> \
     --protocol email \
     --notification-endpoint ***REMOVED***
 

@@ -2,7 +2,9 @@
 	"AlarmName": "DailyEstimatedCharges",
 	"AlarmDescription": "This alarm would trigger if the daily estimated charges exceed 1USD",
 	"ActionsEnabled": true,
-	"AlarmActions": ["***REMOVED***"],
+	"AlarmActions": [
+        //Run bash: aws sns create-topic --name billing-alarm 
+        "arn:aws:<TOPIC ARN>"],
 	"EvaluationPeriods": 1,
 	"DatapointsToAlarm": 1,
 	"Threshold": 1,
