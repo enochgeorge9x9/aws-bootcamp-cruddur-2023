@@ -8,7 +8,7 @@ aws sns create-topic --name billing-alarm
 aws sns subscribe \
     --topic-arn <topicARN> \
     --protocol email \
-    --notification-endpoint ***REMOVED***
+    --notification-endpoint enochgeorge1999@gmail.com
 
 
 aws cloudwatch put-metric-alarm --cli-input-json file://alarm-config.json
