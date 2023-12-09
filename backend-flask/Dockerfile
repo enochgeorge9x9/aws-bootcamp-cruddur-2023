@@ -1,0 +1,23 @@
+# Getting the starting image from dockerhub
+# Installing python image in the container
+FROM python:3.10-slim-buster
+
+# Creating a backend-flask folder in the container
+WORKDIR /backend-flask
+
+# Copying requirements file form host to container
+COPY requirements.txt requirements.txt
+# installing the requirement.txt in the container
+RUN pip3 install -r requirements.txt
+
+# copying all the files from host to container
+COPY . .
+
+# Set environemtn variables (Env Vars)
+# Inside the container and remain there when container is running
+ENV FLASK_ENV=development
+
+EXPOSE ${PORT}
+# CMD (Command)
+# In the container CLI it will run: python3 -m flask run --host=0.0.0.0 --port=4567
+CMD ["python3", "-m", "flask", "run", "--host=0.0.0.0", "--port=4567" ]

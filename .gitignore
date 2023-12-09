@@ -1,2 +1,4 @@
 journal/assets
 .aws_credentials
+.env
+replacements.txt
