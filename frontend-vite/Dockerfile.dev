@@ -1,0 +1,19 @@
+FROM node:alpine
+
+RUN addgroup app && adduser -S -G app app
+RUN mkdir /app && chown app:app /app
+USER app
+
+WORKDIR /app
+
+# add `/app/node_modules/.bin` to $PATH
+ENV PATH /app/node_modules/.bin:$PATH
+
+COPY package.json .
+RUN npm install
+
+COPY . .
+
+EXPOSE 3000
+
+CMD ["npm", "run", "dev"]
