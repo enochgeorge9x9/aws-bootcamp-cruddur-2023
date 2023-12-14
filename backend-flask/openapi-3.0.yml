@@ -4,7 +4,7 @@ info:
   version: '1.0'
     
 servers:
-  - url: https://api.server.test/v1
+  - url: http://172.27.42.5:5000
 paths:
   /api/activities/home:
     get:
@@ -148,7 +148,21 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Message'
-
+  /api/activities/notifications:
+    get:
+      description: 'Return a feed of notification for all those that I follow'
+      tags:
+        - activities
+      parameters: []
+      responses:
+        '200':
+          description: Return array of notifications
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Activity'
 components:
   schemas:
     Activity:
