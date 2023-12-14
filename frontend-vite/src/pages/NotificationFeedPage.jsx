@@ -1,4 +1,4 @@
-import './HomeFeedPage.css';
+import './NotificationFeedPage.css';
 import React from 'react';
 
 import DesktopNavigation from '../components/DesktopNavigation';
@@ -10,7 +10,7 @@ import ReplyForm from '../components/ReplyForm';
 // [TODO] Authenication
 import Cookies from 'js-cookie';
 
-export default function HomeFeedPage() {
+export default function NotificationFeedPage() {
 	const [activities, setActivities] = React.useState([]);
 	const [popped, setPopped] = React.useState(false);
 	const [poppedReply, setPoppedReply] = React.useState(false);
@@ -21,7 +21,7 @@ export default function HomeFeedPage() {
 	const loadData = async () => {
 		try {
 			// eslint-disable-next-line no-undef
-			const backend_url = `${process.env.REACT_APP_BACKEND_URL}/api/activities/home`;
+			const backend_url = `${process.env.REACT_APP_BACKEND_URL}/api/activities/notifications`;
 			const res = await fetch(backend_url, {
 				method: 'GET',
 			});
@@ -58,11 +58,11 @@ export default function HomeFeedPage() {
 
 	return (
 		<article>
-			<DesktopNavigation user={user} active={'home'} setPopped={setPopped} />
+			<DesktopNavigation user={user} active={'notifications'} setPopped={setPopped} />
 			<div className='content'>
 				<ActivityForm popped={popped} setPopped={setPopped} setActivities={setActivities} />
 				<ReplyForm activity={replyActivity} popped={poppedReply} setPopped={setPoppedReply} setActivities={setActivities} activities={activities} />
-				<ActivityFeed title='Home' setReplyActivity={setReplyActivity} setPopped={setPoppedReply} activities={activities} />
+				<ActivityFeed title='Notifications' setReplyActivity={setReplyActivity} setPopped={setPoppedReply} activities={activities} />
 			</div>
 			<DesktopSidebar user={user} />
 		</article>
