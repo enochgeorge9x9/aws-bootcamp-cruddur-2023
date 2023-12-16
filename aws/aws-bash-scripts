@@ -13,3 +13,11 @@ aws sns subscribe \
 
 aws cloudwatch put-metric-alarm --cli-input-json file://alarm-config.json
 
+
+## Create group for XRay Logs
+aws xray create-group --group-name "Cruddur" --filter-expression "service(\"backend-flask\")"
+
+## Create Sampling Rule for XRay Logs
+aws xray create-sampling-rule --cli-input-json file://aws/json/xray.json
+
+

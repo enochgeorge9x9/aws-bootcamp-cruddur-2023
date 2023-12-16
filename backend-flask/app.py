@@ -13,8 +13,16 @@ from services.message_groups import *
 from services.messages import *
 from services.create_message import *
 from services.show_activity import *
+# XRay --------
+from aws_xray_sdk.core import xray_recorder
+from aws_xray_sdk.ext.flask.middleware import XRayMiddleware
 
 app = Flask(__name__)
+# XRay --------
+xray_url = os.getenv("AWS_XRAY_URL")
+xray_recorder.configure(service='Cruddar', dynamic_naming=xray_url)
+XRayMiddleware(app, xray_recorder)
+
 frontend = os.getenv('FRONTEND_URL')
 backend = os.getenv('BACKEND_URL')
 origins = [frontend, backend]
