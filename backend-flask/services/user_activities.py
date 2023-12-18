@@ -1,11 +1,11 @@
 from datetime import datetime, timedelta, timezone
 # X-RAY ----------
-from aws_xray_sdk.core import xray_recorder
+# from aws_xray_sdk.core import xray_recorder
 
 class UserActivities:
   def run(user_handle):
     # X-RAY ----------
-    segment = xray_recorder.begin_segment('user_activities')
+    # segment = xray_recorder.begin_segment('user_activities')
 
     model = {
       'errors': None,
