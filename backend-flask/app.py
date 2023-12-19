@@ -31,7 +31,7 @@ from flask import got_request_exception
 app = Flask(__name__)
 # XRay --------
 # xray_url = os.getenv("AWS_XRAY_URL")
-# xray_recorder.configure(service='Cruddar', dynamic_naming=xray_url)
+# xray_recorder.configure(service='Cruddur', dynamic_naming=xray_url)
 # XRayMiddleware(app, xray_recorder)
 
 # CloudWatch Logs ------
