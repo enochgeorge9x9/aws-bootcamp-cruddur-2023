@@ -4,25 +4,67 @@ import Logo from '../components/svg/logo.svg?react';
 import { Link } from 'react-router-dom';
 
 // [TODO] Authenication
-import Cookies from 'js-cookie';
+// import Cookies from 'js-cookie';
 
+// Amplify -----
+import { signIn } from 'aws-amplify/auth';
+import { fetchAuthSession } from 'aws-amplify/auth';
+
+// eslint-disable-next-line no-unused-vars
+const andrewUser = {
+	email: 'andrew@exampro.co',
+	password: 'Andrew@12345',
+};
+const enochUser = {
+	email: 'codewithenoch@gmail.com',
+	password: 'Codewithenoch@12345',
+};
 export default function SigninPage() {
-	const [email, setEmail] = React.useState('');
-	const [password, setPassword] = React.useState('');
+	const [email, setEmail] = React.useState(andrewUser.email);
+	const [password, setPassword] = React.useState(andrewUser.password);
+	// Amplify -----
 	const [errors, setErrors] = React.useState('');
 
+	// Amplify -----
 	const onsubmit = async (event) => {
-		event.preventDefault();
 		setErrors('');
-		console.log('onsubmit');
-		if (Cookies.get('user.email') === email && Cookies.get('user.password') === password) {
-			Cookies.set('user.logged_in', true);
-			window.location.href = '/';
-		} else {
-			setErrors("Email and password is incorrect or account doesn't exist");
-		}
-		return false;
+		event.preventDefault();
+
+		const userInput = {
+			username: email,
+			password: password,
+		};
+
+		signIn(userInput)
+			.then(({ isSignedIn }) => {
+				console.log('🚀 ~ file: SigninPage.jsx:39 ~ .then ~ isSignedIn:', isSignedIn);
+				if (isSignedIn) {
+					fetchAuthSession().then(({ accessToken }) => {
+						localStorage.setItem('access_token', accessToken);
+						window.location.href = '/';
+					});
+				}
+			})
+			.catch((error) => {
+				if (error.code == ' UserNotConfirmedException') {
+					window.location.href = '/confirm';
+				}
+				setErrors(error.message);
+			});
 	};
+
+	// const onsubmit = async (event) => {
+	// 	event.preventDefault();
+	// 	setErrors('');
+	// 	console.log('onsubmit');
+	// 	if (Cookies.get('user.email') === email && Cookies.get('user.password') === password) {
+	// 		Cookies.set('user.logged_in', true);
+	// 		window.location.href = '/';
+	// 	} else {
+	// 		setErrors("Email and password is incorrect or account doesn't exist");
+	// 	}
+	// 	return false;
+	// };
 
 	const email_onchange = (event) => {
 		setEmail(event.target.value);

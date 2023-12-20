@@ -7,14 +7,19 @@ import ActivityFeed from '../components/ActivityFeed';
 import ActivityForm from '../components/ActivityForm';
 import ReplyForm from '../components/ReplyForm';
 
-// [TODO] Authenication
+// [TODO] Authentication
+// eslint-disable-next-line no-unused-vars
 import Cookies from 'js-cookie';
+
+// Amplify -----
+import { getCurrentUser } from 'aws-amplify/auth';
 
 export default function HomeFeedPage() {
 	const [activities, setActivities] = React.useState([]);
 	const [popped, setPopped] = React.useState(false);
 	const [poppedReply, setPoppedReply] = React.useState(false);
 	const [replyActivity, setReplyActivity] = React.useState({});
+	//set state for user
 	const [user, setUser] = React.useState(null);
 	const dataFetchedRef = React.useRef(false);
 
@@ -36,15 +41,34 @@ export default function HomeFeedPage() {
 		}
 	};
 
+	// Temporary fix for authentication using Cookies
+	// const checkAuth = async () => {
+	// 	console.log('🚀 ~ file: HomeFeedPage.jsx:40 ~ checkAuth ~ checkAuth:', 'checkAuth');
+	// 	// [TODO] Authentication
+	// 	if (Cookies.get('user.logged_in')) {
+	// 		setUser({
+	// 			display_name: Cookies.get('user.name'),
+	// 			handle: Cookies.get('user.username'),
+	// 		});
+	// 	}
+	// };
+
+	// Amplify -----
+	//check if we are authenticated using cognito
 	const checkAuth = async () => {
-		console.log('🚀 ~ file: HomeFeedPage.jsx:40 ~ checkAuth ~ checkAuth:', 'checkAuth');
-		// [TODO] Authentication
-		if (Cookies.get('user.logged_in')) {
-			setUser({
-				display_name: Cookies.get('user.name'),
-				handle: Cookies.get('user.username'),
-			});
-		}
+		getCurrentUser({
+			//Optional, By default is false.
+			// If set to true, this call will send a
+			// request to Cognito to get the latest user data
+			bypassCache: false,
+		})
+			.then((cognito_user) => {
+				setUser({
+					display_name: cognito_user.username,
+					handle: cognito_user.signInDetails.loginId,
+				});
+			})
+			.catch((error) => console.log('User not authenticated: ', error.message));
 	};
 
 	React.useEffect(() => {
@@ -52,6 +76,7 @@ export default function HomeFeedPage() {
 		if (dataFetchedRef.current) return;
 		dataFetchedRef.current = true;
 
+		// Amplify -----
 		checkAuth();
 		loadData();
 	}, []);
