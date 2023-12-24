@@ -21,3 +21,5 @@ aws xray create-group --group-name "Cruddur" --filter-expression "service(\"back
 aws xray create-sampling-rule --cli-input-json file://aws/json/xray.json
 
 
+## Force User to be verfied in Cognito
+aws cognito-idp admin-set-user-password --user-pool-id <USER_POOL_ID> --username andrewbrown --password Andrew@12345 --permanent

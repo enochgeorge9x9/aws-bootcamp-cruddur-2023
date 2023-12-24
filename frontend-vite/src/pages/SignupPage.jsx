@@ -4,7 +4,10 @@ import Logo from '../components/svg/logo.svg?react';
 import { Link } from "react-router-dom";
 
 // [TODO] Authenication
-import Cookies from 'js-cookie'
+// import Cookies from 'js-cookie'
+// Amplify --------
+import { signUp } from 'aws-amplify/auth';
+import { fetchAuthSession } from 'aws-amplify/auth';
 
 export default function SignupPage() {
 
@@ -13,6 +16,7 @@ export default function SignupPage() {
   const [email, setEmail] = React.useState('');
   const [username, setUsername] = React.useState('');
   const [password, setPassword] = React.useState('');
+  // eslint-disable-next-line no-unused-vars
   const [errors, setErrors] = React.useState('');
 
   const onsubmit = async (event) => {

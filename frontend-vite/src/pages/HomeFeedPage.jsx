@@ -63,8 +63,10 @@ export default function HomeFeedPage() {
 			bypassCache: false,
 		})
 			.then((cognito_user) => {
+				console.log(cognito_user);
 				setUser({
-					display_name: cognito_user.username,
+					display_name: cognito_user.name,
+					handle_name: cognito_user.username,
 					handle: cognito_user.signInDetails.loginId,
 				});
 			})

@@ -15,6 +15,7 @@ const andrewUser = {
 	email: 'andrew@exampro.co',
 	password: 'Andrew@12345',
 };
+// eslint-disable-next-line no-unused-vars
 const enochUser = {
 	email: 'codewithenoch@gmail.com',
 	password: 'Codewithenoch@12345',
@@ -39,8 +40,8 @@ export default function SigninPage() {
 			.then(({ isSignedIn }) => {
 				console.log('🚀 ~ file: SigninPage.jsx:39 ~ .then ~ isSignedIn:', isSignedIn);
 				if (isSignedIn) {
-					fetchAuthSession().then(({ accessToken }) => {
-						localStorage.setItem('access_token', accessToken);
+					fetchAuthSession().then(({ tokens }) => {
+						localStorage.setItem('access_token', tokens.accessToken.toString());
 						window.location.href = '/';
 					});
 				}
