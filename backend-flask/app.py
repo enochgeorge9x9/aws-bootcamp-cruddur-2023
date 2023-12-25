@@ -2,6 +2,7 @@ from flask import Flask
 from flask import request
 from flask_cors import CORS, cross_origin
 import os
+import logging
 
 from services.home_activities import *
 from services.notifications_activities import *
@@ -29,6 +30,11 @@ import rollbar.contrib.flask
 from flask import got_request_exception
 
 app = Flask(__name__)
+app.config['ENV'] = 'development'
+app.config['DEBUG'] = True
+if __name__ == "__main__":
+  app.run(debug=True)
+
 # XRay --------
 # xray_url = os.getenv("AWS_XRAY_URL")
 # xray_recorder.configure(service='Cruddur', dynamic_naming=xray_url)
@@ -43,15 +49,15 @@ app = Flask(__name__)
 # LOGGER.addHandler(cw_handler)
 # LOGGER.info("Currently in app.py file")
 
-frontend = os.getenv('FRONTEND_URL')
-backend = os.getenv('BACKEND_URL')
+frontend = os.getenv('FRONTEND_URL') # FRONTEND_URL='http://172.27.42.5:4000'
+backend = os.getenv('BACKEND_URL') # BACKEND_URL='http://172.27.42.5:5000'
 origins = [frontend, backend]
 cors = CORS(
-  app, 
-  resources={r"/api/*": {"origins": "*"}},
-  expose_headers="location,link",
-  allow_headers="content-type,if-modified-since",
-  methods="OPTIONS,GET,HEAD,POST"
+    app, 
+    resources={r"/api/*": {"origins": origins}},
+    headers=['Content-Type', 'Authorization'],
+    expose_headers = 'Authorization',
+    methods="GET,OPTIONS,HEAD,POST",
 )
 
 
@@ -126,6 +132,8 @@ def data_create_message():
 
 @app.route("/api/activities/home", methods=['GET'])
 def data_home():
+  app.logger.debug('AUTH HEADER -----')
+  app.logger.debug(request.headers.get('Authorization'))
   data = HomeActivities.run()
   return data, 200
 
@@ -182,5 +190,3 @@ def data_activities_reply(activity_uuid):
     return model['data'], 200
   return
 
-if __name__ == "__main__":
-  app.run(debug=True)
