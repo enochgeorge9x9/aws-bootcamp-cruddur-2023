@@ -12,7 +12,7 @@ import ReplyForm from '../components/ReplyForm';
 import Cookies from 'js-cookie';
 
 // Amplify -----
-import { getCurrentUser } from 'aws-amplify/auth';
+import { getCurrentUser, fetchUserAttributes } from 'aws-amplify/auth';
 
 export default function HomeFeedPage() {
 	const [activities, setActivities] = React.useState([]);
@@ -56,19 +56,16 @@ export default function HomeFeedPage() {
 	// Amplify -----
 	//check if we are authenticated using cognito
 	const checkAuth = async () => {
-		getCurrentUser({
-			//Optional, By default is false.
-			// If set to true, this call will send a
-			// request to Cognito to get the latest user data
-			bypassCache: false,
-		})
-			.then((cognito_user) => {
-				console.log(cognito_user);
-				setUser({
-					display_name: cognito_user.name,
-					handle_name: cognito_user.username,
-					handle: cognito_user.signInDetails.loginId,
-				});
+		getCurrentUser()
+			.then(async (cognito_user) => {
+				if (cognito_user) {
+					const userAttributes = await fetchUserAttributes();
+					console.log('🚀 ~ file: HomeFeedPage.jsx:62 ~ checkAuth ~ userAttributes:', userAttributes);
+					setUser({
+						display_name: userAttributes.name,
+						handle: userAttributes.preferred_username,
+					});
+				}
 			})
 			.catch((error) => console.log('User not authenticated: ', error.message));
 	};

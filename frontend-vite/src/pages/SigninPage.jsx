@@ -21,8 +21,8 @@ const enochUser = {
 	password: 'Codewithenoch@12345',
 };
 export default function SigninPage() {
-	const [email, setEmail] = React.useState(andrewUser.email);
-	const [password, setPassword] = React.useState(andrewUser.password);
+	const [email, setEmail] = React.useState(enochUser.email);
+	const [password, setPassword] = React.useState(enochUser.password);
 	// Amplify -----
 	const [errors, setErrors] = React.useState('');
 

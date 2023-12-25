@@ -41,7 +41,7 @@ export default function ProfileInfo(props) {
 				<div className='profile-avatar'></div>
 				<div className='profile-desc'>
 					<div className='profile-display-name'>{props.user.display_name || 'My Name'}</div>
-					<div className='profile-username'>@{props.user.handle_name || 'handle'}</div>
+					<div className='profile-username'>@{props.user.handle || 'handle'}</div>
 				</div>
 				<ElipsesIcon className='icon' />
 			</div>

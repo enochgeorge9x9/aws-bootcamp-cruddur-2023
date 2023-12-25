@@ -24,8 +24,7 @@ const config = {
 				// Optional
 				oauth: {},
 				username: 'true',
-				email: 'false', // Optional
-				phone: 'false', // Optional
+				email: 'true', // Optional
 			},
 		},
 	},

@@ -1,18 +1,17 @@
 import './ConfirmationPage.css';
 import React from 'react';
-import { useParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import Logo from '../components/svg/logo.svg?react';
 
 // [TODO] Authenication
 import Cookies from 'js-cookie';
 
 export default function ConfirmationPage() {
+	const [queryParameters] = useSearchParams();
 	const [email, setEmail] = React.useState('');
 	const [code, setCode] = React.useState('');
 	const [errors, setErrors] = React.useState('');
 	const [codeSent, setCodeSent] = React.useState(false);
-
-	const params = useParams();
 
 	const code_onchange = (event) => {
 		setCode(event.target.value);
@@ -64,10 +63,10 @@ export default function ConfirmationPage() {
 	}
 
 	React.useEffect(() => {
-		if (params.email) {
-			setEmail(params.email);
+		if (queryParameters.get('email')) {
+			setEmail(queryParameters.get('email'));
 		}
-	}, []);
+	}, [queryParameters]);
 
 	return (
 		<article className='confirm-article'>
