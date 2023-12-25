@@ -4,7 +4,10 @@ import { useSearchParams } from 'react-router-dom';
 import Logo from '../components/svg/logo.svg?react';
 
 // [TODO] Authenication
-import Cookies from 'js-cookie';
+// import Cookies from 'js-cookie';
+
+// Amplify ------
+import { confirmSignUp, resendSignUpCode } from 'aws-amplify/auth';
 
 export default function ConfirmationPage() {
 	const [queryParameters] = useSearchParams();
@@ -20,31 +23,54 @@ export default function ConfirmationPage() {
 		setEmail(event.target.value);
 	};
 
+	// Amplify -----
 	const resend_code = async (event) => {
+		event.preventDefault();
 		console.log('resend_code');
-		// [TODO] Authenication
+		setCodeSent(false);
+		setErrors('');
+		try {
+			resendSignUpCode({ username: email });
+			setCodeSent(true);
+		} catch (errors) {
+			console.log('🚀 ~ file: ConfirmationPage.jsx:36 ~ resend_code:', errors);
+			setErrors(errors.message);
+		}
 	};
 
+	// Amplify -----
 	const onsubmit = async (event) => {
 		event.preventDefault();
 		console.log('ConfirmationPage.onsubmit');
-		// [TODO] Authenication
-		if (Cookies.get('user.email') === undefined || Cookies.get('user.email') === '' || Cookies.get('user.email') === null) {
-			setErrors('You need to provide an email in order to send Resend Activiation Code');
-		} else {
-			if (Cookies.get('user.email') === email) {
-				if (Cookies.get('user.confirmation_code') === code) {
-					Cookies.set('user.logged_in', true);
-					window.location.href = '/';
-				} else {
-					setErrors('Code is not valid');
-				}
-			} else {
-				setErrors('Email is invalid or cannot be found.');
-			}
+		try {
+			await confirmSignUp({ username: email, confirmationCode: code });
+			window.location.href = '/';
+		} catch (error) {
+			console.log('🚀 ~ file: ConfirmationPage.jsx:48 ~ onsubmit ~ error:', error);
+			setErrors(error.message);
 		}
 		return false;
 	};
+	// const onsubmit = async (event) => {
+	// 	event.preventDefault();
+	// 	console.log('ConfirmationPage.onsubmit');
+	// 	// [TODO] Authenication
+	// 	if (Cookies.get('user.email') === undefined || Cookies.get('user.email') === '' || Cookies.get('user.email') === null) {
+	// 		setErrors('You need to provide an email in order to send Resend Activiation Code');
+	// 	} else {
+	// 		if (Cookies.get('user.email') === email) {
+	// 			if (Cookies.get('user.confirmation_code') === code) {
+	// 				Cookies.set('user.logged_in', true);
+	// 				window.location.href = '/';
+	// 			} else {
+	// 				setErrors('Code is not valid');
+	// 			}
+	// 		} else {
+	// 			setErrors('Email is invalid or cannot be found.');
+	// 		}
+	// 	}
+	// 	return false;
+	// };
 
 	let el_errors;
 	if (errors) {
