@@ -1,8 +1,10 @@
-from flask import Flask
-from flask import request
+from flask import Flask,request
 from flask_cors import CORS, cross_origin
 import os
 import logging
+
+# Cognito JWT Token -----
+from lib.cognito_jwt_token import CognitoJwtToken,TokenVerifyError
 
 from services.home_activities import *
 from services.notifications_activities import *
@@ -34,6 +36,13 @@ app.config['ENV'] = 'development'
 app.config['DEBUG'] = True
 if __name__ == "__main__":
   app.run(debug=True)
+
+# Cognito JWT Token -----
+cognito_jwt_token = CognitoJwtToken(
+  user_pool_id=os.getenv('AWS_COGNITO_USER_POOLS_ID'),
+  user_pool_client_id=os.getenv('AWS_COGNITO_CLIENT_ID'),
+  region=os.getenv('AWS_COGNITO_REGION')
+)
 
 # XRay --------
 # xray_url = os.getenv("AWS_XRAY_URL")
@@ -95,6 +104,22 @@ def rollbar_test():
     x[0] = 10
     return "Hello Rollbar Test endpoint"
 
+@app.route("/api/activities/home", methods=['GET'])
+def data_home():
+  access_token = CognitoJwtToken.extract_access_token(request.headers, 'Authorization')
+  try:
+    claims = cognito_jwt_token.verify(access_token)
+    app.logger.debug('Authenticated Cognito User -----')
+    cognito_user_id = claims['sub']
+    app.logger.debug(cognito_user_id)
+    data = HomeActivities.run(cognito_user_id=cognito_user_id)
+    return data,200
+  except TokenVerifyError as e:
+    app.logger.error('Unauthenticated User')
+    data = HomeActivities.run()
+    return data,200
+
+
 @app.route("/api/message_groups", methods=['GET'])
 def data_message_groups():
   user_handle  = 'andrewbrown'
@@ -130,12 +155,6 @@ def data_create_message():
     return model['data'], 200
   return
 
-@app.route("/api/activities/home", methods=['GET'])
-def data_home():
-  app.logger.debug('AUTH HEADER -----')
-  app.logger.debug(request.headers.get('Authorization'))
-  data = HomeActivities.run()
-  return data, 200
 
 @app.route("/api/activities/notifications", methods=['GET'])
 def data_notification():

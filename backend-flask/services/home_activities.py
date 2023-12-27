@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta, timezone
 class HomeActivities:
-  def run():
+  def run(cognito_user_id=None):
     # logger.info('hello_from_api_end_point: /api/activities/home')
     now = datetime.now(timezone.utc).astimezone()
     results = [{
@@ -42,4 +42,17 @@ class HomeActivities:
       'replies': []
     }
     ]
+    if(cognito_user_id != None):
+      auth_data = {
+      'uuid': cognito_user_id,
+      'handle':  'enochgeorge',
+      'message': 'New data has entered this Cruddur app!',
+      'created_at': (now - timedelta(days=2)).isoformat(),
+      'expires_at': (now + timedelta(days=5)).isoformat(),
+      'likes_count': 522,
+      'replies_count': 1,
+      'reposts_count': 0,
+      'replies': []
+      }
+      results.insert(0,auth_data)
     return results
