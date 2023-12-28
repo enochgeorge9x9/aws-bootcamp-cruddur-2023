@@ -1,5 +1,6 @@
 journal/assets
 .aws_credentials
+aws/aws-bash-scripts
 .env
 replacements.txt
 docker/**/*
