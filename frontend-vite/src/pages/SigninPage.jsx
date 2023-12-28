@@ -25,11 +25,13 @@ export default function SigninPage() {
 	const [password, setPassword] = React.useState(enochUser.password);
 	// Amplify -----
 	const [errors, setErrors] = React.useState('');
+	const [isLoading, setIsLoading] = React.useState(false);
 
 	// Amplify -----
 	const onsubmit = async (event) => {
-		setErrors('');
 		event.preventDefault();
+		setErrors('');
+		setIsLoading(true);
 
 		const userInput = {
 			username: email,
@@ -44,13 +46,15 @@ export default function SigninPage() {
 						localStorage.setItem('access_token', tokens.accessToken.toString());
 						window.location.href = '/';
 					});
+					setIsLoading(false);
 				}
 			})
 			.catch((error) => {
 				if (error.code == ' UserNotConfirmedException') {
 					window.location.href = '/confirm';
 				}
-				setErrors(error.message);
+                setErrors(error.message);
+                setIsLoading(false);
 			});
 	};
 
@@ -102,7 +106,13 @@ export default function SigninPage() {
 						<Link to='/forgot' className='forgot-link'>
 							Forgot Password?
 						</Link>
-						<button type='submit'>Sign In</button>
+						{!isLoading ? (
+							<button type='submit'>Sign In</button>
+						) : (
+							<button type='submit' disabled>
+								Loading...
+							</button>
+						)}
 					</div>
 				</form>
 				<div className='dont-have-an-account'>

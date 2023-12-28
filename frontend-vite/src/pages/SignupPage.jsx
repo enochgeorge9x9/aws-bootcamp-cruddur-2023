@@ -15,7 +15,8 @@ export default function SignupPage() {
 	const [username, setUsername] = React.useState('codewithenoch');
 	const [password, setPassword] = React.useState('Codewithenoch@12345');
 	// eslint-disable-next-line no-unused-vars
-	const [errors, setErrors] = React.useState('');
+    const [errors, setErrors]=React.useState('');
+    const [isLoading, setIsLoading] = React.useState(false);
 
 	//   const onsubmit = async (event) => {
 	//     event.preventDefault();
@@ -32,7 +33,8 @@ export default function SignupPage() {
 
 	// Amplify --------
 	const onsubmit = async (event) => {
-		event.preventDefault();
+        event.preventDefault();
+        setIsLoading(true)
 		try {
 			const { isSignUpComplete, userId, nextStep } = await signUp({
 				username: email,
@@ -46,12 +48,14 @@ export default function SignupPage() {
 					// optional
 					autoSignIn: true, // or SignInOptions e.g { authFlowType: "USER_SRP_AUTH" }
 				},
-			});
+            });
+            setIsLoading(false)
 			console.log({ isSignUpComplete, userId, nextStep });
 			window.location.href = `/confirm?email=${email}`;
 		} catch (error) {
 			console.log('error signing up:', error);
-			setErrors(error.message);
+            setErrors(error.message);
+            setIsLoading(false)
 		}
 	};
 
@@ -104,7 +108,13 @@ export default function SignupPage() {
 					</div>
 					{el_errors}
 					<div className='submit'>
-						<button type='submit'>Sign Up</button>
+                    {!isLoading ? (
+							<button type='submit'>Sign Up</button>
+						) : (
+							<button type='submit' disabled>
+								Loading...
+							</button>
+						)}
 					</div>
 				</form>
 				<div className='already-have-an-account'>
