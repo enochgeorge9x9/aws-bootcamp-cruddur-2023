@@ -1,3 +1,5 @@
+aws --cli-auto-prompt #helps to auto complete your aws commands.
+
 aws budgets create-budget \
     --account-id $AWS_ACCOUNT_ID \
     --budget file://budget.json \
@@ -23,3 +25,8 @@ aws xray create-sampling-rule --cli-input-json file://aws/json/xray.json
 
 ## Force User to be verfied in Cognito
 aws cognito-idp admin-set-user-password --user-pool-id <USER_POOL_ID> --username andrewbrown --password <password> --permanent
+
+
+aws rds create-db-instance --db-instance-identifier cruddur-db-instance --db-instance-class db.t3.micro --engine postgres --engine-version 15.4 --master-username curddur_admin --master-user-password Enoch12345 --allocated-storage 20 --availability-zone ca-central-1a --backup-retention-period 0 --port 5432 --no-multi-az --db-name cruddurdb --storage-type gp2 --publicly--accessible --storage-encrypted --enable-performance-insights --performance-insights-retention-period 7 --no-deletion-protection
+
+aws rds create-db-instance --db-instance-identifier cruddur-db-instance --db-instance-class db.t3.micro --engine postgres --engine-version 15.4 --master-username cruddur_admin --master-user-password <password> --allocated-storage 20 --availability-zone ca-central-1a --backup-retention-period 0 --port 5432 --no-multi-az --db-name cruddurdb --storage-type gp2 --publicly-accessible --storage-encrypted --enable-performance-insights --performance-insights-retention-period 7 --no-deletion-protection

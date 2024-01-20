@@ -1,0 +1,7 @@
+#! /usr/bin/bash
+
+CYAN='\033[1;36m'
+NO_COLOR='\033[0m'
+printf "${CYAN}-------- CONNECT TO DATABASE --------${NO_COLOR}\n"
+
+psql $CONNECTION_URL

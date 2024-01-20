@@ -1,0 +1,11 @@
+#! /usr/bin/bash
+
+CYAN='\033[1;36m'
+NO_COLOR='\033[0m'
+printf "${CYAN}-------- DROPPING THE DATABASE --------${NO_COLOR}\n"
+
+# Using sed to manipulate string
+# Replacing "/cruddur" with empty string
+NO_DB_CONNECTION_URL=$(sed 's/\/cruddur_db//g' <<< "$CONNECTION_URL")
+
+psql $NO_DB_CONNECTION_URL -c "DROP DATABASE cruddur_db;"

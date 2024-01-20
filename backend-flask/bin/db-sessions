@@ -1,0 +1,18 @@
+#! /usr/bin/bash
+
+## List of the places our database is running
+CYAN='\033[1;36m'
+NO_COLOR='\033[0m'
+printf "${CYAN}--------LIST OF ALL DATABASE SESSIONS --------${NO_COLOR}\n"
+
+# Using sed to manipulate string
+# Replacing "/cruddur" with empty string
+NO_DB_CONNECTION_URL=$(sed 's/\/cruddur_db//g' <<< "$CONNECTION_URL")
+
+psql $NO_DB_CONNECTION_URL -c "SELECT pid AS process_id, \
+                                usename as user, \
+                                datname as db, \
+                                client_addr, \
+                                application_name as app, \
+                                state \
+                            from pg_stat_activity; "
