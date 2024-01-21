@@ -11,3 +11,6 @@ blinker
 rollbar
 
 python-jose
+
+psycopg[binary]
+psycopg[pool]

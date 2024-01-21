@@ -16,6 +16,8 @@ COPY . .
 # Set environemtn variables (Env Vars)
 # Inside the container and remain there when container is running
 ENV FLASK_ENV=development
+# Force stdout and stderr sterms to send output of python script straight to terminal
+ENV PYTHONUNBUFFERED=true
 
 EXPOSE ${PORT}
 # CMD (Command)

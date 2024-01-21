@@ -1,0 +1,8 @@
+#! /usr/bin/bash
+
+CYAN='\033[1;36m'
+NO_COLOR='\033[0m'
+LABEL='AUTO PROMPT ON'
+printf "${CYAN}-------- ${LABEL} --------${NO_COLOR}\n"
+
+aws --cli-auto-prompt #helps to auto complete your aws commands.

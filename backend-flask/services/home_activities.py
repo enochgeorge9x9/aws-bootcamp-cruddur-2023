@@ -1,4 +1,7 @@
 from datetime import datetime, timedelta, timezone
+from lib.db import pool,query_wrap_array
+
+
 class HomeActivities:
   def run(cognito_user_id=None):
     # logger.info('hello_from_api_end_point: /api/activities/home')
@@ -55,4 +58,30 @@ class HomeActivities:
       'replies': []
       }
       results.insert(0,auth_data)
+      
+    sql = query_wrap_array("""
+    SELECT 
+        activities.uuid,
+        users.display_name,
+        users.handle,
+        activities.message,
+        activities.replies_count,
+        activities.reposts_count,
+        activities.likes_count,
+        activities.reply_to_activity_uuid,
+        activities.expires_at,
+        activities.created_at
+    FROM public.activities
+    LEFT JOIN public.users on users.uuid = activities.user_uuid
+    ORDER BY activities.created_at DESC
+    """)
+    with pool.connection() as conn:
+      with conn.cursor() as cur:
+            # this will return a tuple
+            # the first field being the data
+            cur.execute(sql)
+            json = cur.fetchone()
+            return json[0]
+    
+
     return results
