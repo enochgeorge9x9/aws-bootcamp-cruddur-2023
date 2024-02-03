@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta, timezone
-from lib.db import pool,query_wrap_array
+from lib.db import db
 
 
 class HomeActivities:
@@ -59,7 +59,7 @@ class HomeActivities:
       }
       results.insert(0,auth_data)
       
-    sql = query_wrap_array("""
+    sql = """
     SELECT 
         activities.uuid,
         users.display_name,
@@ -74,14 +74,7 @@ class HomeActivities:
     FROM public.activities
     LEFT JOIN public.users on users.uuid = activities.user_uuid
     ORDER BY activities.created_at DESC
-    """)
-    with pool.connection() as conn:
-      with conn.cursor() as cur:
-            # this will return a tuple
-            # the first field being the data
-            cur.execute(sql)
-            json = cur.fetchone()
-            return json[0]
+    """
     
-
+    results = db.query_array_json(sql)
     return results
