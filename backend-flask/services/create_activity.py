@@ -3,11 +3,19 @@ from datetime import datetime, timedelta, timezone
 from lib.db import db
 
 class CreateActivity:
-  def run(self, message, user_handle, ttl):
+  def __init__(self, message, user_handle, ttl):
+    self.message = message
+    self.user_handle = user_handle
+    self.ttl = ttl
+
+  def run(self):
     model = {
       'errors': None,
       'data': None
     }
+    message = self.message
+    user_handle = self.user_handle
+    ttl = self.ttl
 
     now = datetime.now(timezone.utc).astimezone()
     if (ttl == '30-days'):
@@ -41,24 +49,28 @@ class CreateActivity:
         'message': message
       }   
     else:
-      user_uuid = ""
-      message = "This is a new micro blog"
-      expires_at = datetime.now(timezone.utc).astimezone()+300
-      self.create_activity(user_uuid, message, expires_at)
-      model['data'] = {
-        'uuid': uuid.uuid4(),
-        'display_name': 'Andrew Brown',
-        'handle':  user_handle,
-        'message': message,
-        'created_at': now.isoformat(),
-        'expires_at': (now + ttl_offset).isoformat()
-      }
+      expires_at = (now + ttl_offset).isoformat()
+      uuid = self.create_activity(user_handle, message, expires_at)
+      object_json = self.query_object_activities(uuid)
+      model['data'] = object_json
     return model
   
   # Insert a user activity to the database (RDS)
-  def create_activity(user_uuid, message, expires_at):
-    sql = f""" 
-          INSERT INTO (user_uuid, message, expires_at)
-          VALUES ("{user_uuid}","{message}","{expires_at}")
-          """
-    db.query_commit(sql)
+  def create_activity(self,handle, message, expires_at):
+    sql = db.template('activities','create')
+    uuid = db.query_commit(sql, {
+                          'handle':handle,
+                          'message':message, 
+                          'expires_at':expires_at
+                        })
+    print("USER UUID ====== ",uuid)
+    return uuid;
+
+  # Return a Activities as json
+  def query_object_activities(self, uuid):
+    sql = db.template('activities', 'objects')
+    json = db.query_object_json(sql, {
+      'uuid': uuid
+    })
+    return json
+    

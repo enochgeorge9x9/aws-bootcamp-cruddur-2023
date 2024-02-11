@@ -182,15 +182,16 @@ def data_search():
 @app.route("/api/activities", methods=['POST','OPTIONS'])
 @cross_origin()
 def data_activities():
-  user_handle  = 'andrewbrown'
+  user_handle  = request.json['user_handle']
   message = request.json['message']
   ttl = request.json['ttl']
-  model = CreateActivity.run(message, user_handle, ttl)
+  CreateActivityObj = CreateActivity(message, user_handle, ttl)
+  model = CreateActivityObj.run()
   if model['errors'] is not None:
     return model['errors'], 422
   else:
     return model['data'], 200
-  return
+
 
 @app.route("/api/activities/<string:activity_uuid>", methods=['GET'])
 def data_show_activity(activity_uuid):

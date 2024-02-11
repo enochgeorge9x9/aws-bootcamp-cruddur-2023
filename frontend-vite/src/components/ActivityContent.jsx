@@ -2,7 +2,7 @@ import './ActivityContent.css';
 
 import { Link } from 'react-router-dom';
 import { DateTime } from 'luxon';
-import  BombIcon from './svg/bomb.svg?react';
+import BombIcon from './svg/bomb.svg?react';
 
 export default function ActivityContent(props) {
 	const format_time_created_at = (value) => {

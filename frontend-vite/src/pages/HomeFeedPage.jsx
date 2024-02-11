@@ -26,7 +26,7 @@ export default function HomeFeedPage() {
 	const loadData = async () => {
 		try {
 			// eslint-disable-next-line no-undef
-			const backend_url = `${process.env.REACT_APP_BACKEND_URL}/api/activities/home`;
+			const backend_url = `${import.meta.env.VITE_APP_BACKEND_URL}/api/activities/home`;
 			const res = await fetch(backend_url, {
 				headers: {
 					Authorization: `Bearer ${localStorage.getItem('access_token')}`,
@@ -87,7 +87,7 @@ export default function HomeFeedPage() {
 		<article>
 			<DesktopNavigation user={user} active={'home'} setPopped={setPopped} />
 			<div className='content'>
-				<ActivityForm popped={popped} setPopped={setPopped} setActivities={setActivities} />
+				<ActivityForm user={user} popped={popped} setPopped={setPopped} setActivities={setActivities} />
 				<ReplyForm activity={replyActivity} popped={poppedReply} setPopped={setPoppedReply} setActivities={setActivities} activities={activities} />
 				<ActivityFeed title='Home' setReplyActivity={setReplyActivity} setPopped={setPoppedReply} activities={activities} />
 			</div>
