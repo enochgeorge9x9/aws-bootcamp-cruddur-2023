@@ -9,7 +9,7 @@ class Db:
         self.init_pool();
     
     def init_pool(self):
-        connection_url = os.getenv("PROD_CONNECTION_URL")
+        connection_url = os.getenv("CONNECTION_URL")
         self.pool = ConnectionPool(connection_url)
     
     # Template to read SQL query statement from a file
@@ -29,19 +29,20 @@ class Db:
 
 
     # Colorize your SQL print statement in your output terminal
-    def print_sql(self,title, sql):
+    def print_sql(self,title, sql, params={}):
         cyan = '\033[96m'
         bold = '\033[1m'
         blue = '\033[94m'
         no_color = '\033[0m'
         print('\n')
         print(f'{cyan}{bold}SQL STATEMENT START -[{title.upper()}]--------{no_color}\n')
+        print(params)
         print(f'{blue}{sql}{no_color}')
-        print(f'{cyan}{bold}SQL STATEMENT END --------{no_color}\n')
+        print(f'{cyan}{bold}SQL STATEMENT END -[{title.upper()}]----------{no_color}\n')
 
     # we want to commit data such as an insert
     def query_commit(self, sql, params={}):
-        self.print_sql('commit', sql)
+        self.print_sql('commit', sql,params)
         # checking if RETURNING string exits in the SQL statement
         pattern = r"\bRETURNING\b"
         is_returning_id = re.search(pattern,sql)
@@ -61,7 +62,7 @@ class Db:
 
     # when we want to return a json object
     def query_object_json(self, sql, params={}):
-        self.print_sql('object', sql)
+        self.print_sql('object', sql,params)
         wrapped_sql = self.query_wrap_object(sql)
         with self.pool.connection() as conn:
             with conn.cursor() as cur:
@@ -73,7 +74,7 @@ class Db:
     
     # when we want to return a an array of json objects
     def query_array_json(self, sql, params = {}):
-        self.print_sql('array', sql)
+        self.print_sql('array', sql,params)
         wrapped_sql = self.query_wrap_array(sql)
         with self.pool.connection() as conn:
             with conn.cursor() as cur:

@@ -15,7 +15,7 @@ def lambda_handler(event, context):
     print(sql)
     print("SQL Statement End----------")
     try:
-       conn = psycopg2.connect(os.getenv('PROD_CONNECTION_URL'))
+       conn = psycopg2.connect(os.getenv('CONNECTION_URL'))
        cur = conn.cursor()
        cur.execute(sql)
        conn.commit()

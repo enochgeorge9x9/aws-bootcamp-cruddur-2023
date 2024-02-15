@@ -1,0 +1,56 @@
+#!/usr/bin/python python
+
+## REF: https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb/client/create_table.html
+
+import boto3
+import sys
+
+CYAN='\033[1;36m'
+NO_COLOR='\033[0m'
+print(F"{CYAN}-------- CREATING TABLE IN DYNAMODB --------{NO_COLOR}\n")
+
+attrs = {
+    'endpoint_url': 'http://172.27.42.5:8000/' #dynamo-db local endpoint (check docker-compose for port)
+}
+
+if len(sys.argv) == 2:
+    if 'prod' in sys.argv[1]:
+        attrs = {}
+
+dynamodb = boto3.client('dynamodb', **attrs)
+table_name = 'cruddur-message'
+
+try:
+    response = dynamodb.create_table(
+        TableName=table_name,
+        AttributeDefinitions=[
+            {
+                'AttributeName': 'pk', #partition key
+                'AttributeType': 'S'
+            },
+            {
+                'AttributeName': 'sk', #sort key
+                'AttributeType': 'S'
+            },
+        ],
+        KeySchema=[
+            {
+                'AttributeName': 'pk',
+                'KeyType': 'HASH'
+            },
+            {
+                'AttributeName': 'sk',
+                'KeyType': 'RANGE'
+            },
+        ],
+
+        BillingMode='PROVISIONED', #for free-tier
+        ProvisionedThroughput={
+            'ReadCapacityUnits': 5,
+            'WriteCapacityUnits': 5
+        }
+    )
+except Exception as error:
+    response = f"ERROR: {error}"
+
+print(response)

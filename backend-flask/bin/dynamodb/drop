@@ -1,0 +1,22 @@
+#!/usr/bin/bash
+# REF: https://docs.aws.amazon.com/cli/latest/reference/dynamodb/delete-table.html
+
+if [ -z "$1" ]; then  # Check if the first argument is empty
+echo "No TABLE_NAME argument supplied. Usage: ./dynamodb/drop [TABLE_NAME(cruddur_message)] [ENVIRONMENT(prod)]"
+exit 1  # Exit with an error code
+fi
+
+TABLE_NAME="$1"  # Assign the first argument to TABLE_NAME
+
+CYAN='\033[1;36m'
+NO_COLOR='\033[0m'
+printf "${CYAN}-------- DROPING ${TABLE_NAME} TABLE IN DYNAMODB --------${NO_COLOR}\n"
+
+if [ "$2" = "prod" ]; then
+    ENDPOINT_URL=""
+else
+    ENDPOINT_URL="--endpoint-url=http://172.27.42.5:8000/"
+fi
+
+aws dynamodb delete-table $ENDPOINT_URL \
+    --table-name "$TABLE_NAME"

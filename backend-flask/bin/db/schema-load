@@ -11,7 +11,7 @@ env=$1 ## First arg given by the user
 
 if [ "$env" = "prod" ]; then
     echo "Running in production mode."
-    CONN_URL=$PROD_CONNECTION_URL
+    CONN_URL=$CONNECTION_URL
 else
     CONN_URL=$CONNECTION_URL
 fi

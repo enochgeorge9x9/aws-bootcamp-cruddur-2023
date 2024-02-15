@@ -1,0 +1,83 @@
+#! usr/bin/env python
+
+CYAN='\033[1;36m'
+NO_COLOR='\033[0m'
+FAIL = '\033[91m'
+print(F"{CYAN}-------- LISTING MESSAGE GROUPS FROM DYNAMODB TABLES --------{NO_COLOR}\n")
+
+import boto3
+import sys
+import os
+import json
+import datetime
+
+# Adding Parent path to Sys path, to import Lib folder directly
+current_path = os.path.dirname(os.path.abspath(__file__))
+parent_path = os.path.abspath(os.path.join(current_path, '..','..','..'))
+sys.path.append(parent_path)
+from lib.db import db
+
+
+def get_user_uuid(handle):
+    sql = """
+        SELECT
+            users.uuid,
+            users.handle
+        FROM users
+        WHERE
+            users.handle=%(my_handle)s
+    """
+    handle = {
+        'my_handle': handle,
+    }
+    users = db.query_array_json(sql, handle)
+
+    my_user_uuid = next((item for item in users if item["handle"] == handle['my_handle']),None)
+    
+    return my_user_uuid['uuid']
+
+
+
+attrs = {
+    'endpoint_url': 'http://172.27.42.5:8000/' #dynamo-db local endpoint (check docker-compose for port)
+}
+
+#unset endpoint url fro use with production database. 
+if len(sys.argv) == 2:
+    if "prod" in sys.argv[1]:
+        attrs = {}
+
+my_user_uuid = get_user_uuid('ironman')
+print(f"MY_UUID: {my_user_uuid} ============")
+
+DYNAMODB_TABLE_NAME = 'cruddur-message'
+
+# define the query parameters
+query_params = {
+    'TableName': DYNAMODB_TABLE_NAME,
+    'KeyConditionExpression': 'pk = :pk',
+    'ExpressionAttributeValues': {
+        ':pk': {'S': f"GRP#{my_user_uuid}"},
+    },
+    'ReturnConsumedCapacity': 'TOTAL'
+}
+
+#query the table
+dynamodb = boto3.client('dynamodb', **attrs)
+response = dynamodb.query(**query_params)
+
+# print the items returned by the query
+# print(json.dumps(response, sort_keys=True, indent=2))
+
+# print the consumed capacity
+print(json.dumps({'ConsumedCapacity': response['ConsumedCapacity']}, sort_keys=True, indent=2))
+
+items = response['Items']
+
+for item in items[::-1]:
+    sender_handle = item['user_handle']['S']
+    message = item['message']['S']
+    timestamp = item['sk']['S']
+    dt_object = datetime.datetime.strptime(timestamp, '%Y-%m-%dT%H:%M:%S.%f%z')
+    formatted_datetime = dt_object.strftime('%Y-%m-%d %I:%M %p')
+    print(f"{sender_handle: <16}{formatted_datetime: <22}{message[:40]} ...") 

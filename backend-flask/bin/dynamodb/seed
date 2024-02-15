@@ -1,0 +1,200 @@
+#! usr/bin/env python
+
+import boto3
+import sys
+import os
+import uuid
+from datetime import timedelta, timezone, datetime
+
+# Adding Parent path to Sys path, to import Lib folder directly
+current_path = os.path.dirname(os.path.abspath(__file__))
+parent_path = os.path.abspath(os.path.join(current_path, '..','..'))
+sys.path.append(parent_path)
+from lib.db import db
+
+CYAN='\033[1;36m'
+NO_COLOR='\033[0m'
+FAIL = '\033[91m'
+print(F"{CYAN}-------- SEEDING TABLE IN DYNAMODB --------{NO_COLOR}\n")
+
+attrs = {
+    'endpoint_url': 'http://172.27.42.5:8000/' #dynamo-db local endpoint (check docker-compose for port)
+}
+
+#unset endpoint url fro use with production database. 
+if len(sys.argv) == 2:
+    if "prod" in sys.argv[1]:
+        attrs = {}
+
+dynamodb = boto3.client('dynamodb', **attrs)
+
+dynamodb_table_name = 'cruddur-message'
+now = datetime.now(timezone.utc).astimezone()
+
+
+def get_user_uuid():
+    sql = """
+        SELECT
+            users.uuid,
+            users.display_name,
+            users.handle
+        FROM users
+        WHERE
+            users.handle IN(
+                %(my_handle)s,
+                %(other_handle)s
+            )
+    """
+    handles = {
+        'my_handle': 'ironman',
+        'other_handle': 'andrewbrown'
+    }
+    users = db.query_array_json(sql, handles)
+
+    my_user = next((item for item in users if item["handle"] == handles['my_handle']),None)
+    other_user = next((item for item in users if item["handle"] == handles['other_handle']),None)
+    results = {
+        'my_user': my_user,
+        'other_user': other_user
+    }
+    return results
+
+
+def create_message(
+        client,
+        message_group_uuid,
+        created_at,
+        message,
+        my_user_uuid,
+        my_user_display_name,
+        my_user_handle
+    ):
+    #Entity : Message Group ID
+    # 'S' : means its a string
+    # 'MSG': SINGLE MESSAGE
+    record = {
+        'pk': {'S': f"MSG#{message_group_uuid}"},
+        'sk': {'S': created_at},
+        'message_uuid': {'S': str(uuid.uuid4())},
+        'message': {'S': message},
+        'user_uuid': {'S': my_user_uuid},
+        'user_display_name': {'S': my_user_display_name},
+        'user_handle': {'S': my_user_handle},
+    }
+
+    #insert the record into the table
+    response = client.put_item(
+        TableName = dynamodb_table_name,
+        Item = record
+    )
+    print("CREATE MESSAGE =====================")
+    print(response)
+
+def create_message_group(
+    client,
+    message_group_uuid,
+    my_user_uuid,
+    other_user_uuid,
+    other_user_handle,
+    other_user_display_name,
+    last_message_at=None,
+    message=None
+):
+    # 'S' : means its a string
+    # 'GRP': it means recurring messages and its a GROUP MESSAGE
+    record = {
+        'pk': {'S':f"GRP#{my_user_uuid}"}, #partition key, is also used as our user UUID
+        'sk':{'S': last_message_at}, #sort key
+        'message_group_uuid':{'S': message_group_uuid},
+        'message':{'S': message},
+        'user_uuid':{'S': other_user_uuid},
+        'user_display_name':{'S': other_user_display_name},
+        'user_handle':{'S': other_user_handle}
+    }
+
+    response = client.put_item(
+        TableName = dynamodb_table_name,
+        Item = record
+    )
+
+    print("CREATE MESSAGE GROUP =====================")
+    print(response)
+
+
+
+conversation = """
+Person 1: Hey, how are you doing today?
+Person 2: I'm doing well, thanks for asking! How about you?
+Person 1: I'm hanging in there. A bit stressed, but I'm making it through. What about you? Anything exciting happening on your end?
+Person 2: Actually, yes! I just booked a trip to Bali next month. I'm so excited to relax on the beach and explore the island.
+Person 1: Wow, that sounds amazing!.
+Person 1: I'm so jealous. Bali has been on my bucket list for ages.
+Person 2: You should definitely add it to your list! Maybe we can even go together sometime.
+Person 1: I'd love that! We'll have to start planning soon.
+Person 2: Sounds good! In the meantime, how about we grab coffee sometime this week and catch up?
+Person 1: I'd love to! Let me know what day works best for you.
+Person 2: Great! I'm free on Tuesday and Wednesday afternoon.
+Person 1: Tuesday afternoon works for me. What time were you thinking?
+Person 2: Does 2pm work?
+Person 1: Perfect! See you then!
+Person 2: See you then!
+Person 2: Bye!
+"""
+
+# Splitting the messages into array.
+lines = conversation.lstrip('\n').rstrip('\n').split('\n')
+
+message_group_uuid = "102289ce-271b-49c1-91b7-5e3661f1bb7c" #str (uuid,uuid4())
+users =get_user_uuid();
+
+# We are creating one message group for receiver person
+create_message_group(
+    client=dynamodb,
+    message_group_uuid=message_group_uuid,
+    my_user_uuid=users['other_user']['uuid'],
+    other_user_uuid=users['my_user']['uuid'],
+    other_user_handle=users['my_user']['handle'],
+    other_user_display_name=users['my_user']['display_name'],
+    last_message_at=now.isoformat(),
+    message="this is a filler message for other_user message"
+)
+
+# We are creating one message group for sender person
+create_message_group(
+    client=dynamodb,
+    message_group_uuid=message_group_uuid,
+    my_user_uuid=users['my_user']['uuid'],
+    other_user_uuid=users['other_user']['uuid'],
+    other_user_handle=users['other_user']['handle'],
+    other_user_display_name=users['other_user']['display_name'],
+    last_message_at=now.isoformat(),
+    message="this is a filler message for my_user message"
+)
+
+
+# Segregating my_messages from the other_person_messages
+for i in range(len(lines)):
+    if lines[i].startswith('Person 1: '):
+        key = 'my_user'
+        message = lines[i].replace('Person 1: ', '')
+    elif lines[i].startswith('Person 2: '):
+        key = 'other_user'
+        message = lines[i].replace('Person 2: ', '')
+    else:
+        print(f"{FAIL}ERROR: INVALID LINE{NO_COLOR}")
+        print(lines[i])
+        raise "ERROR"
+
+    # Conversation happening every 1 minute between person1 and person2
+    created_at = (now + timedelta(minutes=i)).isoformat()
+
+    # Save each message to the dyanamodb database
+    create_message(
+        client= dynamodb,
+        message_group_uuid=message_group_uuid,
+        created_at= created_at,
+        message= message,
+        my_user_uuid= users[key]['uuid'],
+        my_user_display_name= users[key]['display_name'],
+        my_user_handle= users[key]['handle'],
+    )
