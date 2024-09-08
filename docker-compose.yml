@@ -4,10 +4,6 @@ services:
     backend-flask:
         env_file:
             - ./backend-flask/.env
-        # environment:
-        #     AWS_ACCESS_KEY_ID: '${AWS_ACCESS_KEY_ID}'
-        #     AWS_SECRET_ACCESS_KEY: '${AWS_SECRET_ACCESS_KEY}'
-        #     AWS_DEFAULT_REGION: '${AWS_DEFAULT_REGION}'
         build:
             context: ./backend-flask
             dockerfile: Dockerfile.dev
@@ -19,8 +15,6 @@ services:
         restart: unless-stopped
         env_file:
             - ./frontend-vite/.env
-        # environment:
-        #     REACT_APP_BACKEND_URL: 'http://172.27.42.5:5000/'
         build:
             context: ./frontend-vite
             dockerfile: Dockerfile.dev
