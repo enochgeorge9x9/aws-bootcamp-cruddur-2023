@@ -9,19 +9,20 @@ import Cookies from 'js-cookie';
 
 export default function MessageGroupsPage() {
 	const [messageGroups, setMessageGroups] = React.useState([]);
+	// eslint-disable-next-line no-unused-vars
 	const [popped, setPopped] = React.useState([]);
 	const [user, setUser] = React.useState(null);
 	const dataFetchedRef = React.useRef(false);
 
 	const loadData = async () => {
 		try {
-			const backend_url = `${process.env.REACT_APP_BACKEND_URL}/api/message_groups`;
+			const backend_url = `${import.meta.env.REACT_APP_BACKEND_URL}/api/message_groups`;
 			const res = await fetch(backend_url, {
 				method: 'GET',
 			});
-			let resJson = await res.json();
+			// let resJson = await res.json();
 			if (res.status === 200) {
-				setMessageGroups(resJson);
+				// setMessageGroups(resJson);
 			} else {
 				console.log(res);
 			}

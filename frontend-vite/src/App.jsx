@@ -17,9 +17,9 @@ const config = {
 	Auth: {
 		Cognito: {
 			//  Amazon Cognito User Pool ID
-			userPoolId: process.env.REACT_APP_AWS_USER_POOLS_ID,
+			userPoolId: import.meta.env.VITE_APP_AWS_USER_POOLS_ID,
 			// OPTIONAL - Amazon Cognito Web Client ID (26-char alphanumeric string)
-			userPoolClientId: process.env.REACT_APP_CLIENT_ID,
+            userPoolClientId: import.meta.env.VITE_APP_CLIENT_ID,
 			loginWith: {
 				// Optional
 				oauth: {},

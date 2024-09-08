@@ -21,7 +21,7 @@ export default function NotificationFeedPage() {
 	const loadData = async () => {
 		try {
 			// eslint-disable-next-line no-undef
-			const backend_url = `${process.env.REACT_APP_BACKEND_URL}/api/activities/notifications`;
+			const backend_url = `${import.meta.env.REACT_APP_BACKEND_URL}/api/activities/notifications`;
 			const res = await fetch(backend_url, {
 				method: 'GET',
 			});
